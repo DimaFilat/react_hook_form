@@ -1,11 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-interface FormData {
-  name: string;
-  email: string;
-  password: string;
-  terms: boolean;
-}
+import { FormData } from '../../lib/types'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const formData: FormData = req.body;

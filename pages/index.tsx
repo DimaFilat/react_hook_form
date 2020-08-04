@@ -2,12 +2,7 @@ import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-interface FormData {
-  name: string;
-  email: string;
-  password: string;
-  terms: boolean;
-}
+import { FormData } from '../lib/types'
 
 export default function Home() {
   const { register, handleSubmit, errors } = useForm<FormData>();
