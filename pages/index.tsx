@@ -122,7 +122,7 @@ export default function Home() {
       </div>
       <div>
         <button disabled={submitting} type="submit">
-          Registter
+          Register
         </button>
       </div>
     </form>
