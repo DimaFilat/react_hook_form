@@ -2,18 +2,33 @@ import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-import { FormData } from '../lib/types'
+import { FormData } from '../lib/types';
 
 export default function Home() {
-  const { register, handleSubmit, errors } = useForm<FormData>();
+  const { register, handleSubmit, errors } = useForm<FormData>({
+    defaultValues: {
+      name: 'Dmitriy',
+      email: 'somestrange@mail.com',
+      password: 'P@ssw0rd',
+      terms: true,
+      token: '',
+    },
+  });
 
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [serverErrors, setServerErrors] = useState<string[]>([]);
+
+  const reRef = useRef<ReCAPTCHA>();
 
   return (
     <form
       onSubmit={handleSubmit(async (formData) => {
         setSubmitting(true);
+        setServerErrors([]);
+
+        const token = await reRef.current.executeAsync();
+        reRef.current.reset();
+
         const response = await fetch('/api/auth', {
           method: 'POST',
           headers: {
@@ -24,6 +39,7 @@ export default function Home() {
             email: formData.email,
             password: formData.password,
             terms: formData.terms,
+            token,
           }),
         });
         const result = await response.json();
@@ -37,6 +53,11 @@ export default function Home() {
         setSubmitting(false);
       })}
     >
+      <ReCAPTCHA
+        sitekey={process.env.NEXT_PUBLIC_RECAPTCH_SITE_KEY}
+        size="invisible"
+        ref={reRef}
+      />
       {serverErrors && serverErrors.length !== 0 ? (
         <ul>
           {serverErrors.map((error) => (

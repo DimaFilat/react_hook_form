@@ -3,4 +3,5 @@ export interface FormData {
   email: string;
   password: string;
   terms: boolean;
+  token: string;
 }

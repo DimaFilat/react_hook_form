@@ -1,10 +1,18 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-import { FormData } from '../../lib/types'
+import { FormData } from '../../lib/types';
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const formData: FormData = req.body;
   const errors = await validateData(formData);
+
+  const human = await validateHuman(formData.token);
+  if (!human) {
+    res.status(400);
+    res.json({ errors: [`Please, you're not fooling us, bot.`] });
+    return;
+  }
+
   if (errors.length > 0) {
     res.status(400);
     res.json({ errors });
@@ -22,5 +30,22 @@ async function validateData(formData: FormData): Promise<string[]> {
     errors.push('Email already is used');
   }
 
-  return errors
+  return errors;
+}
+
+async function validateHuman(token: string): Promise<boolean> {
+  const secret = process.env.RECAPTCHA_SECRET_KEY;
+  const response = await fetch(
+    `https://www.google.com/recaptcha/api/` +
+      `filatchevcaptcha?secret=${secret}&response=${token}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+  const result = await response.json();
+
+  return result.sucess;
 }
